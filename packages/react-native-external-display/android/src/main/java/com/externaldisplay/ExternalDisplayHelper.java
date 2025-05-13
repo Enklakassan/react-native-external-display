@@ -28,6 +28,7 @@ import com.facebook.react.bridge.ReactApplicationContext;
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 class ExternalDisplayScreen extends Presentation {
   private Activity mainActivity;
+  private boolean preventFocusCapture = false; // Default to true for backward compatibility
 
   ExternalDisplayScreen(Context ctx, Display display) {
     super(ctx, display);
@@ -37,32 +38,59 @@ class ExternalDisplayScreen extends Presentation {
     }
   }
 
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    
-    // Configure the window to not take input focus
+  /**
+   * Set whether focus capture should be prevented
+   * @param prevent If true, prevent the screen from capturing focus
+   */
+  public void setPreventFocusCapture(boolean prevent) {
+    this.preventFocusCapture = prevent;
+    // Update the window flags if we've already created the window
+    if (getWindow() != null) {
+      updateWindowFlags();
+    }
+  }
+
+  /**
+   * Update the window flags based on the current preventFocusCapture setting
+   */
+  private void updateWindowFlags() {
     Window window = getWindow();
     if (window != null) {
-      // FLAG_NOT_FOCUSABLE prevents this window from ever taking focus
-      window.setFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                      WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+      if (preventFocusCapture) {
+        // FLAG_NOT_FOCUSABLE prevents this window from ever taking focus
+        window.setFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+      } else {
+        // Clear the FLAG_NOT_FOCUSABLE flag to allow focus
+        window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+      }
     }
   }
 
   @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    
+    // Apply focus prevention if enabled
+    updateWindowFlags();
+  }
+
+  @Override
   public boolean dispatchKeyEvent(KeyEvent event) {
-    // Prevent handling any key events
-    return false;
+    // If we're preventing focus capture, don't handle key events
+    if (preventFocusCapture) {
+      return false;
+    }
+    return super.dispatchKeyEvent(event);
   }
   
   @Override
   public boolean dispatchTouchEvent(MotionEvent event) {
-    // Ensure touch events don't steal focus
+    // Process the touch event
     boolean handled = super.dispatchTouchEvent(event);
     
-    // When a touch happens, redirect focus to main activity
-    if (mainActivity != null && event.getAction() == MotionEvent.ACTION_DOWN) {
+    // When a touch happens and we're preventing focus capture, redirect focus to main activity
+    if (preventFocusCapture && mainActivity != null && event.getAction() == MotionEvent.ACTION_DOWN) {
       View mainView = mainActivity.getCurrentFocus();
       if (mainView != null) {
         mainView.requestFocus();

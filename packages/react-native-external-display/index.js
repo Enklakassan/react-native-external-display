@@ -26,6 +26,7 @@ type Props = {
   mainScreenStyle?: ViewProps.style,
   screen?: string,
   fallbackInMainScreen?: boolean,
+  preventFocusCapture?: boolean,
   onScreenConnect?: Function,
   onScreenChange?: Function,
   onScreenDisconnect?: Function,
@@ -35,6 +36,7 @@ const ExternalDisplayView = (props: Props) => {
   const {
     screen,
     fallbackInMainScreen,
+    preventFocusCapture,
     mainScreenStyle,
     style,
     onScreenConnect,
@@ -63,6 +65,7 @@ const ExternalDisplayView = (props: Props) => {
         ]}
         screen={scr ? screen : ''}
         fallbackInMainScreen={fallbackInMainScreen}
+        preventFocusCapture={preventFocusCapture}
       />
     </ScreenContext.Provider>
   )
@@ -73,6 +76,7 @@ ExternalDisplayView.defaultProps = {
   mainScreenStyle: undefined,
   screen: '',
   fallbackInMainScreen: false,
+  preventFocusCapture: false,
   onScreenConnect: () => {},
   onScreenChange: () => {},
   onScreenDisconnect: () => {},
