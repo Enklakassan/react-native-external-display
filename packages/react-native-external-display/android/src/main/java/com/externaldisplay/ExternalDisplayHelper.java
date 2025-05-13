@@ -14,6 +14,10 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
 import android.hardware.display.DisplayManager;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
+import android.view.Window;
+import android.view.WindowManager;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -23,13 +27,49 @@ import com.facebook.react.bridge.ReactApplicationContext;
 
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 class ExternalDisplayScreen extends Presentation {
+  private Activity mainActivity;
+
   ExternalDisplayScreen(Context ctx, Display display) {
     super(ctx, display);
+    // Store the main activity if ctx is an Activity
+    if (ctx instanceof Activity) {
+      this.mainActivity = (Activity) ctx;
+    }
   }
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    
+    // Configure the window to not take input focus
+    Window window = getWindow();
+    if (window != null) {
+      // FLAG_NOT_FOCUSABLE prevents this window from ever taking focus
+      window.setFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                      WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+    }
+  }
+
+  @Override
+  public boolean dispatchKeyEvent(KeyEvent event) {
+    // Prevent handling any key events
+    return false;
+  }
+  
+  @Override
+  public boolean dispatchTouchEvent(MotionEvent event) {
+    // Ensure touch events don't steal focus
+    boolean handled = super.dispatchTouchEvent(event);
+    
+    // When a touch happens, redirect focus to main activity
+    if (mainActivity != null && event.getAction() == MotionEvent.ACTION_DOWN) {
+      View mainView = mainActivity.getCurrentFocus();
+      if (mainView != null) {
+        mainView.requestFocus();
+      }
+    }
+    
+    return handled;
   }
 }
 
