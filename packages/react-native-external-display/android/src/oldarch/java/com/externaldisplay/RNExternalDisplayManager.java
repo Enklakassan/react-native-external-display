@@ -77,6 +77,11 @@ public class RNExternalDisplayManager extends ViewGroupManager<RNExternalDisplay
   public void setFallbackInMainScreen(RNExternalDisplayView view, boolean fallbackInMainScreen) {
     view.setFallbackInMainScreen(fallbackInMainScreen);
   }
+  
+  @ReactProp(name = "preventFocusCapture", defaultBoolean = false)
+  public void setPreventFocusCapture(RNExternalDisplayView view, boolean preventFocusCapture) {
+    view.setPreventFocusCapture(preventFocusCapture);
+  }
 
   private void sendEvent(String eventName, @Nullable WritableMap params) {
     reactContext

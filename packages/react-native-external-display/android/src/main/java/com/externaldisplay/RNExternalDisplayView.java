@@ -18,6 +18,7 @@ import java.util.ArrayList;
 public class RNExternalDisplayView extends ReactRootView implements LifecycleEventListener {
   Context context;
   private boolean fallbackInMainScreen = false;
+  private boolean preventFocusCapture = false;
   private ExternalDisplayHelper helper;
   private ExternalDisplayScreen displayScreen;
   private int screen = -1;
@@ -122,6 +123,7 @@ public class RNExternalDisplayView extends ReactRootView implements LifecycleEve
       if (display != null) {
         if (displayScreen == null) {
           displayScreen = new ExternalDisplayScreen(context, display);
+          displayScreen.setPreventFocusCapture(preventFocusCapture);
           wrap = new ReactRootView(context);
         } else if (wrap.getChildCount() > 0) {
           for (int i = 0; i < wrap.getChildCount(); i++) {
@@ -196,5 +198,13 @@ public class RNExternalDisplayView extends ReactRootView implements LifecycleEve
 
   public void setFallbackInMainScreen(boolean value) {
     this.fallbackInMainScreen = value;
+  }
+  
+  public void setPreventFocusCapture(boolean value) {
+    this.preventFocusCapture = value;
+    // Update the existing display screen if it exists
+    if (displayScreen != null) {
+      displayScreen.setPreventFocusCapture(value);
+    }
   }
 }

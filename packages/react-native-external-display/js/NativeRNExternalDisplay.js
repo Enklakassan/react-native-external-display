@@ -8,6 +8,7 @@ type NativeProps = $ReadOnly<{|
   ...ViewProps,
   screen: ?string,
   fallbackInMainScreen: ?boolean,
+  preventFocusCapture: ?boolean,
 |}>
 
 export default (codegenNativeComponent<NativeProps>(

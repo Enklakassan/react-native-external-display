@@ -2,13 +2,12 @@
   "name": "rn-external-display",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/react-native-external-display"
   ],
   "packageManager": "yarn@1.22.22",
   "scripts": {
     "lint": "eslint .",
-    "release": "./scripts/release.sh",
-    "postinstall": "yarnw-sync-deps && yarn --ignore-scripts && patch-package && cd packages/IPadMultiScenesHeadlessExample && patch-package"
+    "release": "./scripts/release.sh"
   },
   "dependencies": {
     "@babel/core": "^7.20.0",
